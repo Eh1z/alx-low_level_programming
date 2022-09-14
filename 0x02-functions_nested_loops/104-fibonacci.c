@@ -8,37 +8,30 @@
  */
 int main(void)
 {
-	long i, ms, mb, ns, nb, oldns, oldnb, zerocount;
+	unsigned long int fr1 = 0, bk1 = 1, fr2 = 0, bk2 = 2;
+	unsigned long int hold1, hold2, hold3;
+	int count;
 
-	ns = 2;
-	ms = 1;
-	nb = ns - ns;
-	mb = ms - ms;
-	printf("%ld, %ld, ", ms, ns);
-	for (i = ns + ms; i <= 98; i++)
+	printf("%lu, %lu, ", bk1, bk2);
+	for (count = 2; count < 98; count++)
 	{
-		ns = ns + ms;
-		ms = ns - ms;
-		if (ns / 1000000000 > 0)
+		if (bk1 + bk2 > LARGEST || fr2 > 0 || fr1 > 0)
 		{
-			nb++;
-			ns = ns % 1000000000;
+			hold1 = (bk1 + bk2) / LARGEST;
+			hold2 = (bk1 + bk2) % LARGEST;
+			hold3 = fr1 + fr2 + hold1;
+			fr1 = fr2, fr2 = hold3;
+			bk1 = bk2, bk2 = hold2;
+			printf("%lu%010lu", fr2, bk2);
 		}
-		nb = nb + mb;
-		mb = nb - mb;
-		if (nb)
+		else
 		{
-			printf("%ld", nb);
-			zerocount = ns;
-			while (zerocount < 100000000)
-			{
-				printf("0");
-				zerocount *= 10;
-			}
+			hold2 = bk1 + bk2;
+			bk1 = bk2, bk2 = hold2;
+			printf("%lu", bk2);
 		}
-		printf("%ld", ns);
-		if (i < 98)
-		printf(", ");
+		if (count != 97)
+			printf(", ");
 	}
 	printf("\n");
 	return (0);
