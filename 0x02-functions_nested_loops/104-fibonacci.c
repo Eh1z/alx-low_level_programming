@@ -8,20 +8,38 @@
  */
 int main(void)
 {
-	int i = 0;
-	unsigned long int a = 0, b = 1, next = 0;
+	long i, ms, mb, ns, nb, oldns, oldnb, zerocount;
 
-	while (i < 98)
+	ns = 2;
+	ms = 1;
+	nb = ns - ns;
+	mb = ms - ms;
+	printf("%ld, %ld, ", ms, ns);
+	for (i = ns + ms; i <= 98; i++)
 	{
-		next = a + b;
-		a = b;
-		b = next;
-		printf("%lu", next);
-
+		ns = ns + ms;
+		ms = ns - ms;
+		if (ns / 1000000000 > 0)
+		{
+			nb++;
+			ns = ns % 1000000000;
+		}
+		nb = nb + mb;
+		mb = nb - mb;
+		if (nb)
+		{
+			printf("%ld", nb);
+			zerocount = ns;
+			while (zerocount < 100000000)
+			{
+				printf("0");
+				zerocount *= 10;
+			}
+		}
+		printf("%ld", ns);
 		if (i < 98)
-			printf(", ");
-		i++;
+		printf(", ");
 	}
-	putchar('\n');
+	printf("\n");
 	return (0);
 }
