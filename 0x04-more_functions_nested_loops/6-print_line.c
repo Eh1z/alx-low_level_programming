@@ -1,32 +1,21 @@
 #include "main.h"
 
 /**
- * more_numbers - prints more numbers
+ * print_line - check for a digit
+ * @n : number of _ to be printed
  * Return:void
  */
 
-void more_numbers(void)
+void print_line(int n)
 {
-	char n, c;
+
 	int i = 0;
 
-
-	while (i < 10)
+	while (i < n && n > 0)
 	{
-		for (n = 0; n <= 14; n++)
-		{
-			c = n;
-			if (n > 9)
-			{
-				_putchar('1');
-				c = n % 10;
-			}
-
-			_putchar('0' + c);
-		}
-
-		_putchar('\n');
+		_putchar('_');
 		i++;
 	}
+	_putchar('\n');
 
 }
