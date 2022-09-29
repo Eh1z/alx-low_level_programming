@@ -1,5 +1,5 @@
 /*
- * File: 100-wildcmp.c
+ * File: 101-wildcmp.c
  * Auth: Godsent E. Oyarekhua.
  */
 
