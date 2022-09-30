@@ -5,7 +5,7 @@
  * File: main.h
  * Auth: Godsent E Oyarekhua
  * Desc: Header file containing the prototypes of all functions
- *       included in the static library libmain.a.
+ *       included in the static library libmy.a.
  */
 
 int _putchar(char c);
