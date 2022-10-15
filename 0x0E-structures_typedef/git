@@ -1,4 +1,4 @@
 #!/bin/bash
 git add .
-git commit -m 'I created a git push script for typef and it did this for me'
+git commit -m 'I created a git push script for typedef and it did this for me'
 git push
