@@ -1,67 +1,110 @@
 #include "main.h"
 #include <stdio.h>
 
+int close_error(int fd);
+void read_error(char *filename);
+void write_error(char *filename);
+
 /**
- * error_file - checks if files can be opened.
- * @file_from: file_from.
- * @file_to: file_to.
- * @argv: arguments vector.
- * Return: no return.
+ * main - copies the content of a file to another file.
+ * @argc: argument counter.
+ * @argv: argument vector.
+ * Return: always return 0, or exit.
  */
-void error_file(int file_from, int file_to, char *argv[])
-{
-	if (file_from == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		exit(98);
-	}
-	if (file_to == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-		exit(99);
-	}
-}
-
-
 int main(int argc, char *argv[])
 {
-	int file_from, file_to, err_close;
-	ssize_t nchars, nwr;
-	char buf[1024];
+	char buffer[1024];
+	int fd_file_from, fd_file_to;
+	ssize_t bytes_counted = 1;
 
+	/* check number of argument */
 	if (argc != 3)
 	{
-		dprintf(STDERR_FILENO, "%s\n", "Usage: cp file_from file_to");
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
 		exit(97);
 	}
-
-	file_from = open(argv[1], O_RDONLY);
-	file_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC | O_APPEND, 0664);
-	error_file(file_from, file_to, argv);
-
-	nchars = 1024;
-	while (nchars == 1024)
+	/* open and check fd for file_from */
+	fd_file_from = open(argv[1], O_RDONLY);
+	if (fd_file_from < 0)
 	{
-		nchars = read(file_from, buf, 1024);
-		if (nchars == -1)
-			error_file(-1, 0, argv);
-		nwr = write(file_to, buf, nchars);
-		if (nwr == -1)
-			error_file(0, -1, argv);
+		read_error(argv[1]);
+		exit(98);
+	}
+	/* open and check fd for file_to */
+	fd_file_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, 0664);
+	if (fd_file_to < 0)
+	{
+		write_error(argv[2]);
+		close_error(fd_file_from);
+		exit(99);
 	}
 
-	err_close = close(file_from);
-	if (err_close == -1)
+	/* copy content - loop checks end of file (file_from) */
+	while (bytes_counted)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", file_from);
+		/* read the next 1020 bytes in file_from and check read error */
+		bytes_counted = read(fd_file_from, buffer, 1024);
+		if (bytes_counted < 0)
+		{
+			read_error(argv[1]);
+			close_error(fd_file_from);
+			close_error(fd_file_to);
+			exit(98);
+		}
+		/* check buffer end of file */
+		if (bytes_counted == 0)
+			break;
+		/* write the output in file_to and check write error */
+		bytes_counted = write(fd_file_to, buffer, bytes_counted);
+		if (bytes_counted < 0)
+		{
+			write_error(argv[2]);
+			close_error(fd_file_from);
+			close_error(fd_file_to);
+			exit(99);
+		}
+	}
+
+	/* close and check fd for file_from and file_to */
+	if (close_error(fd_file_from) < 0)
+	{
+		close_error(fd_file_to);
 		exit(100);
 	}
-
-	err_close = close(file_to);
-	if (err_close == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", file_from);
+	if (close_error(fd_file_to) < 0)
 		exit(100);
-	}
 	return (0);
+}
+
+/**
+ * close_error - close a file descriptor and check for a possible error.
+ * @fd: file descriptor for file to be closed.
+ * Return: 1 if fd colud be closeed, -1 if fd could not be closed.
+ */
+int close_error(int fd)
+{
+	int close_output;
+
+	close_output = close(fd);
+	if (close_output < 0)
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd);
+	return (close_output);
+}
+
+/**
+ * read_error - print the read error.
+ * @filename: filename.
+ */
+void read_error(char *filename)
+{
+	dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", filename);
+}
+
+/**
+ * write_error - print the write error.
+ * @filename: filename.
+ */
+void write_error(char *filename)
+{
+	dprintf(STDERR_FILENO, "Error: Can't write to %s\n", filename);
 }
